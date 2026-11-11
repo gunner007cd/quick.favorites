@@ -2,10 +2,11 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
 <!ENTITY author    "hernandito">
-<!ENTITY version   "2026.10.02b">
+<!ENTITY version   "2026.11.11">
 <!ENTITY github    "hernandito/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
+<!ENTITY cache     "/boot/config/plugins/&name;/&version;">
 ]>
 <PLUGIN name="&name;"
         author="&author;"
@@ -16,6 +17,9 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.11
+- FIXED: Plugin no longer fails to load when the server boots without internet. Files are kept on the flash drive.
+
 ###2026.10.02
 - FIXED: Issue w/ UserScripts not working after a reboot.
 
@@ -45,62 +49,46 @@
 </CHANGES>
 
 <!--
-  CLEAR THE PLUGIN DIRECTORY BEFORE ANY <FILE> IS FETCHED.
-
-  Unraid's plugin script will NOT overwrite a file that already exists:
-
-      // If file already exists, do not overwrite
-      if (file_exists($name)) { my_logger("skipping: $name already exists"); }
-
-  download is silently skipped and the old files stay in place, even though the
-  version bumped and the install log reports success.
-
-  <FILE> elements run in document order, so wiping the directory here means the
-  download entries below always land on a clean folder.
-
-  This only touches /usr/local/emhttp (tmpfs). User settings live in
-  /boot/config/plugins/quick.favorites and are never affected.
+  OFFLINE-SAFE INSTALL
+  Unraid re-runs this file at EVERY boot. Each file is downloaded to the flash
+  drive, into a folder named after the version (&cache;). Unraid skips a download
+  when the file already exists (and its MD5 matches), so after the first install a
+  boot needs no internet. A version bump means a new folder, so an update always
+  gets fresh files - this also replaces the old "wipe before download" step.
+  The install script below copies the files into the RAM plugin folder.
+  User settings in /boot/config/plugins/quick.favorites are never touched.
 -->
-<FILE Run="/bin/bash">
-<INLINE>
-<![CDATA[
-rm -rf /usr/local/emhttp/plugins/quick.favorites
-mkdir -p /usr/local/emhttp/plugins/quick.favorites
-]]>
-</INLINE>
-</FILE>
-
-<FILE Name="&plugdir;/QuickFavorites.page">
+<FILE Name="&cache;/QuickFavorites.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavorites.page</URL>
   <MD5>6113542fa34e0bf420657ac9104d839e</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/QuickFavoritesButton.page">
+<FILE Name="&cache;/QuickFavoritesButton.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavoritesButton.page</URL>
   <MD5>f11429368760b0ae8bd851e486c5f864</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/popup.php">
+<FILE Name="&cache;/popup.php">
   <URL>https://raw.githubusercontent.com/&github;/main/popup.php</URL>
   <MD5>a8ae7938f90d1b1991ce7b870a4a8b0c</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/favs.js">
+<FILE Name="&cache;/favs.js">
   <URL>https://raw.githubusercontent.com/&github;/main/favs.js</URL>
   <MD5>ede3d54ae15c9a225e514f807bf9dcfb</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/log_api.php">
+<FILE Name="&cache;/log_api.php">
   <URL>https://raw.githubusercontent.com/&github;/main/log_api.php</URL>
   <MD5>286a8fcc0d6e80fb506fff1cb725b7af</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/&name;.png">
+<FILE Name="&cache;/&name;.png">
   <URL>https://raw.githubusercontent.com/&github;/main/icon.png</URL>
   <MD5>dd1cfc11383bf54f852fd316e43b5882</MD5>
 </FILE>
 
-<FILE Name="&plugdir;/README.md">
+<FILE Name="&cache;/README.md">
   <URL>https://raw.githubusercontent.com/&github;/main/description.txt</URL>
   <MD5>4b93403dac653321251f006c558652b0</MD5>
 </FILE>
@@ -115,8 +103,22 @@ NAME="quick.favorites"
 VERSION="]]>&version;<![CDATA["
 PLUGDIR="/usr/local/emhttp/plugins/$NAME"
 CONF="/boot/config/plugins/$NAME"
+CACHE="$CONF/$VERSION"
 
 mkdir -p "$CONF"
+
+# --- Lay down a clean copy of this version from the flash cache --------------
+rm -rf "$PLUGDIR"
+mkdir -p "$PLUGDIR"
+cp -r "$CACHE"/. "$PLUGDIR"/
+
+# --- Drop cached files of older versions (settings files are not folders) ----
+for d in "$CONF"/*/; do
+  v=$(basename "$d")
+  case "$v" in
+    20[0-9][0-9].[0-9][0-9].[0-9][0-9]*) [ "$v" != "$VERSION" ] && rm -rf "$d" ;;
+  esac
+done
 
 # --- Persistent user config: create ONLY if missing, never overwrite ---------
 if [ ! -f "$CONF/appearance.json" ]; then
@@ -208,6 +210,8 @@ for CORE in \
 done
 
 rm -rf "/usr/local/emhttp/plugins/$NAME"
+# Cached plugin files only; settings in /boot/config/plugins/$NAME stay
+for d in "/boot/config/plugins/$NAME"/20[0-9][0-9].[0-9][0-9].[0-9][0-9]*/; do [ -d "$d" ] && rm -rf "$d"; done
 
 echo ""
 echo "-----------------------------------------------------------------------"
