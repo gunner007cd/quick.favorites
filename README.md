@@ -1,13 +1,25 @@
 # 🌟 Quick Favorites for Unraid
 
+![Quick Favorites Menu](screenshots/menu-open.png)
+
+---
+
+<p align="center">
+<a href="https://www.buymeacoffee.com/hernandito" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+       alt="Buy Me a Coffee"
+       width="122"
+       height="34">
+</a>
+</p>
+
+---
+
 A custom favorites menu for the unRAIDheader. Easily navigate to pages, Docker containers, and User Scripts with live previews and icon support.
 
 Supercharge your unRAIDnavigation! **Quick Favorites** allows you to build a beautifully customized, lightning-fast pop-up menu right into your unRAIDheader. This takes the existing "Favorites" and replaces it with our Quick Favorites pop-up.
 
-Stop clicking through endless tabs to find your most-used settings, Docker containers, or User Scripts. Put them all in one place, accessible from anywhere in your unRAIDdashboard.
-
-![Quick Favorites Menu](screenshots/menu-open.png)
-
+Stop clicking through endless tabs to find your most-used settings, Docker containers, or User Scripts. Put them all in one place, accessible from anywhere in your unRAID WebUI.
 
 ---
 

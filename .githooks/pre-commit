@@ -1,0 +1,186 @@
+#!/bin/sh
+#
+# .githooks/pre-commit
+#
+# Runs automatically every time you commit (GitHub Desktop included).
+# It bumps <!ENTITY version> and refreshes every <MD5> in quick.favorites.plg,
+# then stages the result so it lands in the same commit.
+#
+# Uses only tools bundled with Git, so it works identically in Windows Git Bash
+# and on the unRAID console. No python required.
+#
+# Hashes come from `git show :file` - the STAGED blob, which is exactly what
+# GitHub will serve after the push. That sidesteps the CRLF trap: .gitattributes
+# `* text=auto` stores LF, so hashing the working copy on Windows would produce
+# a hash that never matches the download, and Unraid aborts with "bad file MD5".
+#
+# To skip it for one commit:  git commit --no-verify
+#
+
+PLG="quick.favorites.plg"
+
+# Only act if the .plg is present in this repo
+[ -f "$PLG" ] || exit 0
+
+# If nothing is staged, git is about to abort with "nothing to commit" anyway.
+# Bumping the version here would leave the .plg modified for a commit that never
+# happens. (GitHub Desktop cannot reach this state - it disables Commit when
+# nothing is selected - but the command line can.)
+if git diff --cached --quiet 2>/dev/null; then
+    exit 0
+fi
+
+# ---- 1. Work out the next version -------------------------------------------
+CURRENT=$(sed -n 's/.*<!ENTITY version[[:space:]]*"\([^"]*\)".*/\1/p' "$PLG" | head -1)
+TODAY=$(date +%Y.%m.%d)
+
+case "$CURRENT" in
+    "$TODAY"*)
+        SUFFIX=${CURRENT#"$TODAY"}
+        if [ -z "$SUFFIX" ]; then
+            NEXT="${TODAY}a"
+        else
+            NEXT="${TODAY}$(printf '%s' "$SUFFIX" | tr 'a-y' 'b-z')"
+        fi
+        ;;
+    *)
+        NEXT="${TODAY}a"
+        ;;
+esac
+
+# Unraid compares plugin versions with strcmp(), so the new string MUST sort
+# after the old one or the update is treated as a downgrade and never offered.
+if [ "$NEXT" = "$CURRENT" ] || [ "$NEXT" \< "$CURRENT" ]; then
+    echo "pre-commit: cannot bump version past '$CURRENT' (would be '$NEXT')."
+    echo "pre-commit: you have used every suffix for today. Edit $PLG by hand."
+    exit 1
+fi
+
+# ---- 2. Pick an MD5 tool ----------------------------------------------------
+# Environments differ. GitHub Desktop ships a trimmed Git (MinGit) that has sed,
+# awk and tr but NOT md5sum/openssl, so Unix-only probing fails there. Windows
+# always has certutil and PowerShell, which can hash a file - so fall back to
+# those. md5of() always reads stdin and prints a lowercase hex digest.
+#
+# Failing loudly matters: an empty <MD5></MD5> makes Unraid's plugin('validate')
+# treat the download as corrupt, silently restore the installed .plg, and never
+# offer the update.
+
+if printf '' | md5sum >/dev/null 2>&1; then
+    md5of() { md5sum | cut -d' ' -f1; }
+
+elif printf '' | md5 -q >/dev/null 2>&1; then
+    md5of() { md5 -q; }
+
+elif printf '' | openssl dgst -md5 >/dev/null 2>&1; then
+    md5of() { openssl dgst -md5 | sed 's/.*= *//'; }
+
+elif command -v certutil >/dev/null 2>&1; then
+    # Windows. certutil needs a real file, so buffer stdin to a temp file.
+    # Output line 2 is the digest; older builds space-separate the bytes.
+    md5of() {
+        _t=$(mktemp); cat > "$_t"
+        _w=$(cygpath -w "$_t" 2>/dev/null || printf '%s' "$_t")
+        certutil -hashfile "$_w" MD5 2>/dev/null \
+            | sed -n '2p' | tr -d ' \r\n' | tr 'A-Z' 'a-z'
+        rm -f "$_t"
+    }
+
+elif command -v powershell >/dev/null 2>&1; then
+    md5of() {
+        _t=$(mktemp); cat > "$_t"
+        _w=$(cygpath -w "$_t" 2>/dev/null || printf '%s' "$_t")
+        powershell -NoProfile -Command \
+            "(Get-FileHash -Algorithm MD5 -LiteralPath '$_w').Hash" 2>/dev/null \
+            | tr -d ' \r\n' | tr 'A-Z' 'a-z'
+        rm -f "$_t"
+    }
+
+elif command -v perl >/dev/null 2>&1 && perl -MDigest::MD5 -e1 >/dev/null 2>&1; then
+    md5of() { perl -MDigest::MD5 -e 'binmode STDIN; print Digest::MD5->new->addfile(*STDIN)->hexdigest'; }
+
+elif command -v python3 >/dev/null 2>&1; then
+    md5of() { python3 -c "import sys,hashlib;print(hashlib.md5(sys.stdin.buffer.read()).hexdigest())"; }
+
+else
+    echo "pre-commit: ERROR - no MD5 tool found."
+    echo "pre-commit: tried md5sum, md5, openssl, certutil, powershell, perl, python3."
+    echo "pre-commit: commit aborted so the .plg is not published with empty hashes."
+    echo "pre-commit: workaround - commit from the unRAID console instead."
+    exit 1
+fi
+
+# ---- 3. Hash each shipped file, as Git has it staged -------------------------
+MAP=$(mktemp)
+URLS=$(mktemp)
+trap 'rm -f "$MAP" "$URLS"' EXIT
+
+grep -o '<URL>[^<]*</URL>' "$PLG" | sed 's|<URL>||; s|</URL>||' > "$URLS"
+
+# Read from a file, NOT a pipe. A `... | while` loop runs in a subshell, where
+# `exit 1` would only kill the subshell and the commit would proceed anyway.
+while IFS= read -r url; do
+    file=${url##*/}                      # basename of the URL
+    [ -n "$file" ] || continue
+
+    if git cat-file -e ":$file" 2>/dev/null; then
+        hash=$(git show ":$file" | md5of)
+    elif [ -f "$file" ]; then
+        # Not tracked yet - fall back to the working copy, stripping CR so the
+        # hash still matches what Git will normalise it to.
+        hash=$(tr -d '\r' < "$file" | md5of)
+    else
+        echo "pre-commit: WARNING - no file found for $file (no MD5 written)"
+        continue
+    fi
+
+    # An empty or malformed hash must never reach the .plg. Unraid reads an
+    # empty <MD5></MD5> as a mismatch, silently restores the previously
+    # installed .plg, and no update is ever offered.
+    case "$hash" in
+        [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]*) : ;;
+        *)
+            echo "pre-commit: ERROR - could not hash $file (got '$hash')."
+            echo "pre-commit: commit aborted so the .plg is not published broken."
+            exit 1
+            ;;
+    esac
+
+    printf '%s\t%s\n' "$file" "$hash" >> "$MAP"
+done < "$URLS"
+
+# ---- 4. Rewrite the .plg ----------------------------------------------------
+TMP=$(mktemp)
+awk -v map="$MAP" -v ver="$NEXT" '
+BEGIN {
+    while ((getline line < map) > 0) {
+        split(line, a, "\t")
+        H[a[1]] = a[2]
+    }
+}
+{
+    if ($0 ~ /<!ENTITY version/) {
+        sub(/version[ \t]+"[^"]*"/, "version   \"" ver "\"")
+    }
+    # Drop only lines that ARE a hash element. A looser /<MD5>/ match also
+    # deletes prose in comments that happens to mention <MD5>.
+    if ($0 ~ /^[ \t]*<MD5>[0-9a-fA-F]*<\/MD5>[ \t]*$/) next
+    print
+    if ($0 ~ /<URL>/) {
+        u = $0
+        sub(/.*<URL>/, "", u)
+        sub(/<\/URL>.*/, "", u)
+        n = split(u, parts, "/")
+        f = parts[n]
+        if (f in H) print "  <MD5>" H[f] "</MD5>"
+    }
+}
+' "$PLG" > "$TMP" || { echo "pre-commit: failed to rewrite $PLG"; rm -f "$TMP"; exit 1; }
+
+mv "$TMP" "$PLG"
+
+# ---- 5. Stage it so it is part of THIS commit --------------------------------
+git add "$PLG"
+
+echo "pre-commit: $PLG -> version $NEXT, $(wc -l < "$MAP" | tr -d ' ') MD5 hashes refreshed"
+exit 0
