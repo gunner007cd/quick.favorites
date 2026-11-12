@@ -123,6 +123,7 @@ $custom_css = file_exists($css_file) ? file_get_contents($css_file) : '';
                         $href = $isScript ? '#' : htmlspecialchars($item['path']);
                     ?>
                         <a href="<?= $href ?>" 
+                           <?= (($item['action'] ?? '') === '_blank') ? 'target="_blank" rel="noopener noreferrer"' : '' ?>
                            data-action="<?= htmlspecialchars($item['action']) ?>" 
                            data-path="<?= htmlspecialchars($item['path']) ?>" 
                            class="qf-item">
