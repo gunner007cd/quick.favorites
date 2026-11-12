@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
 <!ENTITY author    "Christopher Deal">
-<!ENTITY version   "2026.11.12e">
+<!ENTITY version   "2026.11.12f">
 <!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
@@ -17,6 +17,10 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.12f
+- FIXED: Cache-bust favs.js when the plugin code changes so new actions work without stale browser JavaScript.
+- No change to stored favorites, commands, or header artwork.
+
 ###2026.11.12e
 - FIXED: Escape a reserved XML character in release notes so Unraid accepts the plugin.
 - No change to the terminal shortcut behavior or saved favorites.
@@ -90,7 +94,7 @@
 
 <FILE Name="&cache;/QuickFavoritesButton.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavoritesButton.page</URL>
-  <MD5>63097d14cb812ba048487fdb32a99d29</MD5>
+  <MD5>62f6a732eb8cd98914815d9736f34d0e</MD5>
 </FILE>
 
 <FILE Name="&cache;/popup.php">
