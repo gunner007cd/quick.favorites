@@ -16,7 +16,10 @@ Icon="fa-star"
 $qf_conf     = "/boot/config/plugins/quick.favorites/appearance.json";
 $qf_settings = @is_file($qf_conf) ? json_decode(@file_get_contents($qf_conf), true) : [];
 if (!is_array($qf_settings)) $qf_settings = [];
-$qf_label = $qf_settings['header_label'] ?? '⭐⭐';
+$qf_label = $qf_settings['header_label'] ?? 'fa-star';
+$qf_image = $qf_settings['header_image'] ?? '/plugins/quick.favorites/Asuka.png';
+// Only a local plugin asset may be used for the navbar image. Empty disables it.
+if (!is_string($qf_image) || !preg_match('~^/plugins/[A-Za-z0-9_./-]+$~', $qf_image)) $qf_image = '';
 $qf_mode  = ($qf_settings['open_mode'] ?? 'click') === 'hover' ? 'hover' : 'click';
 $qf_delay = (int)($qf_settings['hover_delay'] ?? 250);
 if ($qf_delay < 0 || $qf_delay > 2000) $qf_delay = 250;
@@ -32,6 +35,48 @@ if ($qf_delay < 0 || $qf_delay > 2000) $qf_delay = 250;
     white-space: nowrap;
     line-height: 1;
 }
+
+<?php if ($qf_image !== ''): ?>
+/* The selected portrait is rendered on every page, without waiting for the popup. */
+#menu .nav-item.qf-nav-item #qf-custom-btn {
+    position: relative !important;
+    display: inline-block !important;
+    width: 70px !important;
+    height: 40px !important;
+    padding: 0 !important;
+    vertical-align: middle !important;
+    overflow: visible !important;
+    font-size: 0 !important;
+}
+#menu .nav-item.qf-nav-item #qf-custom-btn > b { display: none !important; }
+#menu .nav-item.qf-nav-item #qf-custom-btn::before {
+    content: "";
+    position: absolute;
+    width: 72px;
+    height: 72px;
+    left: -1px;
+    top: -16px;
+    background: url(<?= json_encode($qf_image, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>) center / contain no-repeat;
+    pointer-events: none;
+}
+#menu .nav-item.qf-nav-item,
+#menu .nav-item.qf-nav-item:hover,
+#menu .nav-item.qf-nav-item:focus,
+#menu .nav-item.qf-nav-item:active,
+#menu .nav-item.qf-nav-item #qf-custom-btn,
+#menu .nav-item.qf-nav-item #qf-custom-btn:hover,
+#menu .nav-item.qf-nav-item #qf-custom-btn:focus {
+    border-bottom: none !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+}
+#menu .nav-item.qf-nav-item::before,
+#menu .nav-item.qf-nav-item::after {
+    display: none !important;
+}
+/* No alternate hover image or panic state. */
+<?php endif; ?>
 
 /* Keep the pop-up out of sight from the very first paint.
    This lives in <head>, so it is parsed before any page content and long before

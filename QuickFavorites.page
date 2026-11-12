@@ -124,7 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_favs'])) {
         'menu_title' => $_POST['menu_title'] ?? 'Quick Favorites',
         // header_label is the text shown on the navigation bar button itself.
         // It MUST be saved here or it is wiped from appearance.json on every save.
-        'header_label' => $_POST['header_label'] ?? '⭐⭐',
+        'header_label' => $_POST['header_label'] ?? 'fa-star',
+        'header_image' => $_POST['header_image'] ?? '/plugins/quick.favorites/Asuka.png',
         'icon_size' => $_POST['icon_size'] ?? '42',
         'grid_columns' => $_POST['grid_columns'] ?? '5',
         'menu_width' => $_POST['menu_width'] ?? '480',
@@ -170,19 +171,20 @@ $appearance_file = "$cfg_dir/appearance.json";
 // appearance.json produces PHP notices and blank colour boxes.
 $defaults = [
     'menu_title' => 'Quick Favorites',
-    'header_label' => '⭐⭐',
-    'icon_size' => '32',
-    'grid_columns' => '4',
+    'header_label' => 'fa-star',
+    'header_image' => '/plugins/quick.favorites/Asuka.png',
+    'icon_size' => '42',
+    'grid_columns' => '5',
     'menu_width' => '480',
-    'show_header' => 'yes',
-    'bg_color' => '#1c1c1c',
+    'show_header' => 'no',
+    'bg_color' => '#000000',
     'hover_color' => '#333333',
-    'header_color' => '#ffca28',
+    'header_color' => '#FFCA28',
     'header_line' => '#333333',
-    'section_title_color' => '#888888',
-    'section_border_color' => '#333333',
-    'icon_color' => '#e0e0e0',
-    'label_color' => '#cccccc',
+    'section_title_color' => '#FFCA28',
+    'section_border_color' => '#554000',
+    'icon_color' => '#FFCA28',
+    'label_color' => '#CCCCCC',
     'open_mode' => 'click',
     'hover_delay' => '250'
 ];
@@ -437,7 +439,12 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
                     <div>
                         <label>Menu Bar Button:</label>
                         <input type="text" name="header_label" value="<?= htmlspecialchars($style['header_label']) ?>" class="qf-input" style="font-size: 15px; font-weight: bold;">
-                        <div style="font-size: 11px; opacity: 0.75; line-height: 1.4; margin-top: 3px;">Text or emoji shown on the Unraid navigation bar. A FontAwesome class (e.g. <code>fa-star</code>) also works.</div>
+                        <div style="font-size: 11px; opacity: 0.75; line-height: 1.4; margin-top: 3px;">Fallback text or FontAwesome icon when no navbar image is selected.</div>
+                    </div>
+                    <div>
+                        <label>Navbar Image (local path):</label>
+                        <input type="text" name="header_image" value="<?= htmlspecialchars($style['header_image']) ?>" class="qf-input" style="font-size: 12px;">
+                        <div style="font-size: 11px; opacity: 0.75; line-height: 1.4; margin-top: 3px;">Default: /plugins/quick.favorites/Asuka.png. Leave blank to use the Menu Bar Button icon instead. No image swap on hover.</div>
                     </div>
                     <div>
                         <label>Header Title:</label>
@@ -705,12 +712,13 @@ function resetAppearanceDefaults() {
         confirmButtonText: "Yes, reset it!",
         closeOnConfirm: true
     }, function() {
-        $('input[name="header_label"]').val('⭐⭐');
+        $('input[name="header_label"]').val('fa-star');
+        $('input[name="header_image"]').val('/plugins/quick.favorites/Asuka.png');
         $('input[name="menu_title"]').val('Quick Favorites');
-        $('input[name="icon_size"]').val('32');
-        $('input[name="grid_columns"]').val('4');
+        $('input[name="icon_size"]').val('42');
+        $('input[name="grid_columns"]').val('5');
         $('input[name="menu_width"]').val('480');
-        $('select[name="show_header"]').val('yes');
+        $('select[name="show_header"]').val('no');
         $('select[name="open_mode"]').val('click');
         $('input[name="hover_delay"]').val('250');
         qfSyncOpenMode();
@@ -721,14 +729,14 @@ function resetAppearanceDefaults() {
             textInput.siblings('.color-picker-sync').val(val);
         }
 
-        setCol('bg_color', '#1c1c1c');
+        setCol('bg_color', '#000000');
         setCol('hover_color', '#333333');
-        setCol('header_color', '#ffca28');
+        setCol('header_color', '#FFCA28');
         setCol('header_line', '#333333');
-        setCol('section_title_color', '#888888');
-        setCol('section_border_color', '#333333');
-        setCol('icon_color', '#e0e0e0');
-        setCol('label_color', '#cccccc');
+        setCol('section_title_color', '#FFCA28');
+        setCol('section_border_color', '#554000');
+        setCol('icon_color', '#FFCA28');
+        setCol('label_color', '#CCCCCC');
     });
 }
 </script>
