@@ -1,7 +1,7 @@
 <?xml version="1.0" standalone="yes"?>
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
-<!ENTITY author    "hernandito">
+<!ENTITY author    "gunner007cd">
 <!ENTITY version   "2026.11.12a">
 <!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
@@ -13,12 +13,13 @@
         version="&version;"
         launch="Settings/QuickFavorites"
         pluginURL="&pluginURL;"
-        support="https://forums.unraid.net/topic/197973-plugin-quick-favorites-custom-favorites-menu-pop-up/"
+        support="https://github.com/gunner007cd/quick.favorites/issues"
         min="6.12.0">
 
 <CHANGES>
 ###2026.11.12a
-- FORK: Use gunner007cd/quick.favorites for downloads and updates.
+- FORK: Maintained by gunner007cd; originally developed by hernandito.
+- FORK: Use gunner007cd/quick.favorites for downloads, updates, and issue reports.
 - FIXED: Honor New Tab for favorite links.
 
 ###2026.11.11
