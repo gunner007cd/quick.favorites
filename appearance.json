@@ -1,5 +1,9 @@
 {
     "menu_title": "Quick Favorites",
+    "header_label": "fa-star",
+    "header_image": "/plugins/quick.favorites/Asuka.png",
+    "open_mode": "click",
+    "hover_delay": "250",
     "icon_size": "42",
     "grid_columns": "5",
     "menu_width": "480",
@@ -8,8 +12,8 @@
     "bg_color": "#000000",
     "header_color": "#FFCA28",
     "header_line": "#333333",
-    "section_title_color": "#AAAAAA",
-    "section_border_color": "#333333",
+    "section_title_color": "#FFCA28",
+    "section_border_color": "#554000",
     "icon_color": "#FFCA28",
     "label_color": "#CCCCCC"
 }
