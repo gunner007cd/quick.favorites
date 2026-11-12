@@ -119,8 +119,8 @@ $custom_css = file_exists($css_file) ? file_get_contents($css_file) : '';
                 <div class="qf-section-title"><?= htmlspecialchars($category) ?></div>
                 <div class="qf-grid">
                     <?php foreach ($items as $item): 
-                        $isScript = ($item['action'] === 'script_modal' || $item['action'] === 'script_background');
-                        $href = $isScript ? '#' : htmlspecialchars($item['path']);
+                        $isAction = in_array($item['action'], ['script_modal', 'script_background', 'terminal_copy'], true);
+                        $href = $isAction ? '#' : htmlspecialchars($item['path']);
                     ?>
                         <a href="<?= $href ?>" 
                            <?= (($item['action'] ?? '') === '_blank') ? 'target="_blank" rel="noopener noreferrer"' : '' ?>
