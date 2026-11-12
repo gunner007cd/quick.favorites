@@ -102,7 +102,7 @@
 
 <FILE Name="&cache;/favs.js">
   <URL>https://raw.githubusercontent.com/&github;/main/favs.js</URL>
-  <MD5>6d160f83eb5c5e7b112a3142c1037c93</MD5>
+  <MD5>4e7a44f758c843de97805a8932bc9673</MD5>
 </FILE>
 
 <FILE Name="&cache;/log_api.php">
