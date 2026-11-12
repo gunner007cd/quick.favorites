@@ -365,6 +365,7 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
         <ul style="margin-bottom:0; padding-left:20px; line-height: 2.4rem;">
             <li><strong>UserScripts:</strong> For the "Path", simply enter the <b>Folder Name</b> of your script (e.g., <code>Daily Backup</code>).</li>
             <li><strong>Spaces:</strong> Folder names with spaces (e.g., <code>My Script</code>) are supported, but avoiding spaces is best practice for Linux paths.</li>
+            <li><strong>Terminal:</strong> Choose <code>Copy Command &amp; Open Terminal</code> to copy a single-line shell command from the Path / URL / Command field and open Unraid's interactive Web Terminal. Paste and press Enter to run it; the command is never executed automatically.</li>
             <li><strong>FontAwesome:</strong> Unraid uses <b>FontAwesome 4.7</b> classes. Find compatible icon names on the <a href="https://fontawesome.com/v4/icons/" target="_blank" class="qf-fa-link">v.4 Cheatsheet</a> (e.g., <code>fa-docker</code>).</li>
             <li><strong>Custom Images:</strong> Paste a direct image URL or a local unRAID path (e.g., <code>/plugins/nvidia-driver/images/icon.png</code>).</li>
         </ul>
@@ -378,7 +379,7 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
                     <th class="qf-col-drag"></th>
                     <th class="qf-col-cat">Category</th>
                     <th class="qf-col-label">Label</th>
-                    <th class="qf-col-path">Path / URL</th>
+                    <th class="qf-col-path">Path / URL / Command</th>
                     <th class="qf-col-icon">Icon</th>
                     <th class="qf-col-action">Action</th>
                     <th class="qf-col-del"></th>
@@ -413,6 +414,7 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
                             <option value="script_modal" <?= (isset($data['action']) && $data['action'] == 'script_modal') ? 'selected' : '' ?>>Run Script (Console)</option>
                             <option value="script_background" <?= (isset($data['action']) && $data['action'] == 'script_background') ? 'selected' : '' ?>>Run Script (Background)</option>
                             <option value="script_log" <?= (isset($data['action']) && $data['action'] == 'script_log') ? 'selected' : '' ?>>User Script Log</option>
+                            <option value="terminal_copy" <?= (isset($data['action']) && $data['action'] == 'terminal_copy') ? 'selected' : '' ?>>Copy Command &amp; Open Terminal</option>
                         </select>
                     </td>
                     <td class="qf-row-right-end" style="text-align:center;">
@@ -634,7 +636,7 @@ function addRow() {
         <td class="drag-handle" title="Drag to reorder"><i class="fa fa-bars"></i></td>
         <td class="qf-cell-cat"><input type="text" name="category[]" placeholder="Category" required class="qf-input"></td>
         <td class="qf-cell-label"><input type="text" name="label[]" placeholder="Label" required class="qf-input"></td>
-        <td class="qf-cell-path"><input type="text" name="path[]" placeholder="Folder or URL" required class="qf-input path-input"></td>
+        <td class="qf-cell-path"><input type="text" name="path[]" placeholder="Folder, URL, or command" required class="qf-input path-input"></td>
         <td>
             <div class="qf-icon-cell">
                 <span class="preview-wrapper"><i class="fa fa-star"></i></span>
@@ -648,6 +650,7 @@ function addRow() {
                 <option value="script_modal">Run Script (Console)</option>
                 <option value="script_background">Run Background</option>
                 <option value="script_log">User Script Log</option>
+                <option value="terminal_copy">Copy Command &amp; Open Terminal</option>
             </select>
         </td>
         <td class="qf-row-right-end" style="text-align:center;">
