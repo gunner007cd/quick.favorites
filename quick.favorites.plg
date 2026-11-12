@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
 <!ENTITY author    "Christopher Deal">
-<!ENTITY version   "2026.11.12d">
+<!ENTITY version   "2026.11.12e">
 <!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
@@ -17,8 +17,12 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.12e
+- FIXED: Escape a reserved XML character in release notes so Unraid accepts the plugin.
+- No change to the terminal shortcut behavior or saved favorites.
+
 ###2026.11.12d
-- ADDED: Copy Command & Open Terminal action for remembered interactive CLI tools.
+- ADDED: Copy Command &amp; Open Terminal action for remembered interactive CLI tools.
 - Copies a single-line command to the clipboard and opens Unraid's native Web Terminal.
 - Does not execute commands automatically; existing favorites and settings are preserved.
 
