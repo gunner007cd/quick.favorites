@@ -25,13 +25,11 @@ Stop clicking through endless tabs to find your most-used settings, Docker conta
 
 ---
 
-## Navbar image uploads
+## Custom navbar image persistence
 
-On **Settings → Quick Favorites → Appearance**, choose a PNG, JPEG, or WebP file using **Upload Navbar Image**, then click **Save Settings**. The uploaded artwork is selected automatically, using its original resolution and transparency (no crop or resize). The file limit is 4 MB and 4096 pixels on each side; the server's PHP upload limit may be lower.
+To use a personal navbar image, copy the PNG, JPEG, or WebP file to `/boot/config/plugins/quick.favorites/` on the Unraid flash drive. In **Settings → Quick Favorites → Appearance**, set **Navbar Image (local path)** to `/plugins/quick.favorites/your-file.png` and click **Save Settings**.
 
-Uploaded files are stored at `/boot/config/plugins/quick.favorites/navbar-images/` and copied to the active web plugin directory at install and every boot. The selected path is saved in `appearance.json`; changing themes or upgrading does not delete the original upload.
-
-Older portraits already copied manually into `/boot/config/plugins/quick.favorites/` are also restored after installation or reboot. To switch back to the bundled image, set **Navbar Image (local path)** to `/plugins/quick.favorites/Asuka.png` and save. Leaving the field empty restores the icon/text button.
+During installation and reboot, the plugin automatically restores custom images from that persistent folder into `/usr/local/emhttp/plugins/quick.favorites/`. It never modifies the image, and the built-in `Asuka.png` remains available as a default. There is no browser upload feature.
 
 ---
 
