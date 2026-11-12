@@ -1,8 +1,10 @@
-# 🌟 Quick Favorites for Unraid
+# 🌟 Quick Favorites for Unraid — TheVault fork
 
 ![Quick Favorites Menu](screenshots/menu-open.png)
 
 ---
+
+This is the [gunner007cd fork](https://github.com/gunner007cd/quick.favorites) of the [original Quick Favorites](https://github.com/hernandito/quick.favorites), maintained for TheVault. It includes a fixed New Tab action and a configurable static navbar image. Original project copyright and GPL-3.0 license are retained.
 
 <p align="center">
 <a href="https://www.buymeacoffee.com/hernandito" target="_blank">
@@ -61,4 +63,4 @@ Installing Quick Favorites is incredibly simple.
 4. Paste the URL below into the text box and click **Install**:
 
 ```text
-https://raw.githubusercontent.com/hernandito/quick.favorites/main/quick.favorites.plg
+https://raw.githubusercontent.com/gunner007cd/quick.favorites/main/quick.favorites.plg
