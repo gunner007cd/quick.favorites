@@ -2,8 +2,8 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
 <!ENTITY author    "hernandito">
-<!ENTITY version   "2026.11.11">
-<!ENTITY github    "hernandito/quick.favorites">
+<!ENTITY version   "2026.11.12a">
+<!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
 <!ENTITY cache     "/boot/config/plugins/&name;/&version;">
@@ -17,6 +17,10 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.12a
+- FORK: Use gunner007cd/quick.favorites for downloads and updates.
+- FIXED: Honor New Tab for favorite links.
+
 ###2026.11.11
 - FIXED: Plugin no longer fails to load when the server boots without internet. Files are kept on the flash drive.
 
@@ -70,7 +74,7 @@
 
 <FILE Name="&cache;/popup.php">
   <URL>https://raw.githubusercontent.com/&github;/main/popup.php</URL>
-  <MD5>a8ae7938f90d1b1991ce7b870a4a8b0c</MD5>
+  <MD5>ce58ee5c95e46c4d973c58b6281113c2</MD5>
 </FILE>
 
 <FILE Name="&cache;/favs.js">
