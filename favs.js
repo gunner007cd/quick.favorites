@@ -418,6 +418,58 @@ document.addEventListener('click', function (e) {
             }
         });
     }
+    else if (action === 'terminal_copy') {
+        e.preventDefault(); e.stopPropagation();
+
+        // This action copies a command; it NEVER executes shell input.
+        // A single line prevents accidental multi-command pastes into a root shell.
+        if (!path || /[\\x00-\\x1F\\x7F]/.test(path)) {
+            alert('Enter one single-line terminal command in the Path / URL / Command field.');
+            return;
+        }
+
+        // Prefer synchronous copy while still in the user click gesture.
+        // execCommand works on some HTTP / local Unraid installations where the
+        // asynchronous Clipboard API is unavailable or requires HTTPS.
+        var copied = false;
+        var field = document.createElement('textarea');
+        field.value = path;
+        field.setAttribute('readonly', '');
+        field.style.position = 'fixed';
+        field.style.left = '-9999px';
+        document.body.appendChild(field);
+        field.focus();
+        field.select();
+        try { copied = !!document.execCommand('copy'); }
+        catch (copyError) { console.warn('[QuickFavorites] Clipboard copy failed:', copyError); }
+        document.body.removeChild(field);
+
+        var pendingCopy = null;
+        if (!copied && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            try { pendingCopy = navigator.clipboard.writeText(path); }
+            catch (clipboardError) { console.warn('[QuickFavorites] Clipboard API failed:', clipboardError); }
+        }
+
+        window.qfCloseMenu && window.qfCloseMenu();
+        try {
+            // Unraid's own interactive terminal, not a User Scripts output box.
+            // Open synchronously inside the click handler to avoid popup blockers.
+            if (typeof openTerminal !== 'function') throw new Error('openTerminal() unavailable');
+            openTerminal('ttyd', 'Web Terminal ' + Date.now(), '');
+        } catch (terminalError) {
+            console.error('[QuickFavorites] Could not open Web Terminal:', terminalError);
+            alert('Could not open Web Terminal. Open it from the Unraid toolbar.\n\nCommand: ' + path);
+        }
+
+        function manualCopy() {
+            window.prompt('Clipboard access was blocked. Copy this command manually, paste it into Web Terminal, and press Enter:', path);
+        }
+        if (pendingCopy && typeof pendingCopy.catch === 'function') {
+            pendingCopy.catch(manualCopy);
+        } else if (!copied) {
+            manualCopy();
+        }
+    }
     else if (action === 'script_log') {
         e.preventDefault(); e.stopPropagation();
         if (!path) return;
