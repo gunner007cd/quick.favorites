@@ -423,7 +423,7 @@ document.addEventListener('click', function (e) {
 
         // This action copies a command; it NEVER executes shell input.
         // A single line prevents accidental multi-command pastes into a root shell.
-        if (!path || /[\\x00-\\x1F\\x7F]/.test(path)) {
+        if (!path || path.split('').some(function (char) { var code = char.charCodeAt(0); return code < 32 || code === 127; })) {
             alert('Enter one single-line terminal command in the Path / URL / Command field.');
             return;
         }
