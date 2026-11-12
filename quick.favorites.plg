@@ -21,6 +21,8 @@
 - FORK: Maintained by gunner007cd; originally developed by hernandito.
 - FORK: Use gunner007cd/quick.favorites for downloads, updates, and issue reports.
 - FIXED: Honor New Tab for favorite links.
+- ADDED: Configurable navbar portrait using a packaged Asuka.png asset (asset upload pending).
+- CHANGED: Theme defaults match TheVault; old panic-hover art is retired.
 
 ###2026.11.11
 - FIXED: Plugin no longer fails to load when the server boots without internet. Files are kept on the flash drive.
@@ -65,12 +67,12 @@
 -->
 <FILE Name="&cache;/QuickFavorites.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavorites.page</URL>
-  <MD5>6113542fa34e0bf420657ac9104d839e</MD5>
+  <MD5>446e0f744b5603b91dec77b8a0a75090</MD5>
 </FILE>
 
 <FILE Name="&cache;/QuickFavoritesButton.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavoritesButton.page</URL>
-  <MD5>f11429368760b0ae8bd851e486c5f864</MD5>
+  <MD5>63097d14cb812ba048487fdb32a99d29</MD5>
 </FILE>
 
 <FILE Name="&cache;/popup.php">
@@ -130,7 +132,8 @@ if [ ! -f "$CONF/appearance.json" ]; then
 cat > "$CONF/appearance.json" <<'EOF_APPEARANCE'
 {
     "menu_title": "Quick Favorites",
-    "header_label": "\u2b50\u2b50",
+    "header_label": "fa-star",
+    "header_image": "/plugins/quick.favorites/Asuka.png",
     "icon_size": "42",
     "grid_columns": "5",
     "menu_width": "480",
@@ -142,7 +145,9 @@ cat > "$CONF/appearance.json" <<'EOF_APPEARANCE'
     "section_title_color": "#FFCA28",
     "section_border_color": "#554000",
     "icon_color": "#FFCA28",
-    "label_color": "#CCCCCC"
+    "label_color": "#CCCCCC",
+    "open_mode": "click",
+    "hover_delay": "250"
 }
 EOF_APPEARANCE
 fi
