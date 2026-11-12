@@ -25,6 +25,14 @@ Stop clicking through endless tabs to find your most-used settings, Docker conta
 
 ---
 
+## Custom navbar image persistence
+
+To use a personal navbar image, copy the PNG, JPEG, or WebP file to `/boot/config/plugins/quick.favorites/` on the Unraid flash drive. In **Settings → Quick Favorites → Appearance**, set **Navbar Image (local path)** to `/plugins/quick.favorites/your-file.png` and click **Save Settings**.
+
+During installation and reboot, the plugin automatically restores custom images from that persistent folder into `/usr/local/emhttp/plugins/quick.favorites/`. It never modifies the image, and the built-in `Asuka.png` remains available as a default. There is no browser upload feature.
+
+---
+
 ## ✨ Features
 * **Everywhere You Need It:** The menu attaches to the Star icon in the top right of your unRAIDheader, making it accessible from any page.
 * **Fully Customizable Look:** Change the width, grid layout, colors, and borders to perfectly match your unRAIDtheme.

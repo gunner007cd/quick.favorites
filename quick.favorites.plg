@@ -2,7 +2,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
 <!ENTITY author    "gunner007cd">
-<!ENTITY version   "2026.11.12a">
+<!ENTITY version   "2026.11.12b">
 <!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
@@ -17,6 +17,11 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.12b
+- FIXED: Restore manually stored navbar images from persistent flash storage
+  whenever the plugin's live directory is recreated at boot or update.
+- No upload UI, new service, or extra dependency.
+
 ###2026.11.12a
 - FORK: Maintained by gunner007cd; originally developed by hernandito.
 - FORK: Use gunner007cd/quick.favorites for downloads, updates, and issue reports.
@@ -124,6 +129,17 @@ mkdir -p "$CONF"
 rm -rf "$PLUGDIR"
 mkdir -p "$PLUGDIR"
 cp -r "$CACHE"/. "$PLUGDIR"/
+
+# --- Restore custom navbar artwork from the persistent flash config ----------
+# /usr/local/emhttp/plugins is recreated in RAM at every install/boot; manual
+# image files live in /boot/config/plugins/quick.favorites and must be copied.
+# Do not overwrite the bundled default image or the plugin's own icons.
+for image in "$CONF"/*.png "$CONF"/*.jpg "$CONF"/*.jpeg "$CONF"/*.webp; do
+  [ -f "$image" ] && [ ! -L "$image" ] || continue
+  filename=$(basename "$image")
+  case "$filename" in Asuka.png|quick.favorites.png|icon.png) continue ;; esac
+  cp -f -- "$image" "$PLUGDIR/$filename"
+done
 
 # --- Drop cached files of older versions (settings files are not folders) ----
 for d in "$CONF"/*/; do
