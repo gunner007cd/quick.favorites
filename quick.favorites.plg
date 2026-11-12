@@ -18,9 +18,9 @@
 
 <CHANGES>
 ###2026.11.12b
-- ADDED: Upload PNG, JPG or WebP navbar images without resizing or recompression.
-- FIXED: Restore user images from persistent flash storage after reboots/updates.
-- COMPATIBILITY: Copy legacy manually stored custom images from the flash config folder.
+- FIXED: Restore manually stored navbar images from persistent flash storage
+  whenever the plugin's live directory is recreated at boot or update.
+- No upload UI, new service, or extra dependency.
 
 ###2026.11.12a
 - FORK: Maintained by gunner007cd; originally developed by hernandito.
@@ -72,7 +72,7 @@
 -->
 <FILE Name="&cache;/QuickFavorites.page">
   <URL>https://raw.githubusercontent.com/&github;/main/QuickFavorites.page</URL>
-  <MD5>720a454a9d59627f46540587c14ff20a</MD5>
+  <MD5>446e0f744b5603b91dec77b8a0a75090</MD5>
 </FILE>
 
 <FILE Name="&cache;/QuickFavoritesButton.page">
@@ -130,19 +130,10 @@ rm -rf "$PLUGDIR"
 mkdir -p "$PLUGDIR"
 cp -r "$CACHE"/. "$PLUGDIR"/
 
-# --- Restore user navbar images from flash on each install and reboot ---------
-# The live plugin directory is in RAM and was just replaced from version cache.
-# Uploaded files live OUTSIDE that cache so updates never remove them.
-UPLOAD_DIR="$CONF/navbar-images"
-mkdir -p "$UPLOAD_DIR" "$PLUGDIR/navbar-images"
-for image in "$UPLOAD_DIR"/navbar-*.png "$UPLOAD_DIR"/navbar-*.jpg "$UPLOAD_DIR"/navbar-*.webp; do
-  [ -f "$image" ] && [ ! -L "$image" ] || continue
-  cp -f -- "$image" "$PLUGDIR/navbar-images/"
-done
-
-# Compatibility: older manually copied portraits were stored at the root of
-# /boot/config/plugins/quick.favorites (e.g. Asuka_QF_Navbar_Transparent.png).
-# Preserve them on upgrade, without replacing bundled plugin assets.
+# --- Restore custom navbar artwork from the persistent flash config ----------
+# /usr/local/emhttp/plugins is recreated in RAM at every install/boot; manual
+# image files live in /boot/config/plugins/quick.favorites and must be copied.
+# Do not overwrite the bundled default image or the plugin's own icons.
 for image in "$CONF"/*.png "$CONF"/*.jpg "$CONF"/*.jpeg "$CONF"/*.webp; do
   [ -f "$image" ] && [ ! -L "$image" ] || continue
   filename=$(basename "$image")
