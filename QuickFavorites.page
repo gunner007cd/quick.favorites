@@ -84,63 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // 2. Handle Save
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_favs'])) {
-
-    // Original uploaded bytes are preserved (including PNG alpha).
-    $upload_error = null;
-    $uploaded_header_image = null;
-    if (isset($_FILES['navbar_upload'])) {
-        $upload = $_FILES['navbar_upload'];
-        if (!is_array($upload) || !isset($upload['error']) || is_array($upload['error'])) {
-            $upload_error = 'Invalid upload request.';
-        } elseif ($upload['error'] !== UPLOAD_ERR_NO_FILE) {
-            if ($upload['error'] !== UPLOAD_ERR_OK) {
-                $upload_error = in_array($upload['error'], [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true)
-                    ? 'Image exceeds the server upload limit (' . ini_get('upload_max_filesize') . ').'
-                    : 'Image upload failed (error ' . (int)$upload['error'] . ').';
-            } elseif (!isset($upload['size'], $upload['tmp_name']) ||
-                      $upload['size'] <= 0 || $upload['size'] > 4 * 1024 * 1024 ||
-                      !is_string($upload['tmp_name']) || !is_uploaded_file($upload['tmp_name'])) {
-                $upload_error = 'Choose a valid image smaller than 4 MB.';
-            } else {
-                $info = @getimagesize($upload['tmp_name']);
-                $formats = [IMAGETYPE_PNG => 'png', IMAGETYPE_JPEG => 'jpg', IMAGETYPE_WEBP => 'webp'];
-                $mimes = ['png' => 'image/png', 'jpg' => 'image/jpeg', 'webp' => 'image/webp'];
-                if ($info === false || $info[0] < 1 || $info[1] < 1 ||
-                    $info[0] > 4096 || $info[1] > 4096 || !isset($formats[$info[2]])) {
-                    $upload_error = 'Use a PNG, JPEG, or WebP image at most 4096 × 4096 pixels.';
-                } else {
-                    $extension = $formats[$info[2]];
-                    if ((new finfo(FILEINFO_MIME_TYPE))->file($upload['tmp_name']) !== $mimes[$extension]) {
-                        $upload_error = 'File contents do not match a supported image format.';
-                    } else {
-                        $persistent_dir = "$cfg_dir/navbar-images";
-                        $runtime_dir = '/usr/local/emhttp/plugins/quick.favorites/navbar-images';
-                        if ((!is_dir($persistent_dir) && !@mkdir($persistent_dir, 0755, true)) ||
-                            (!is_dir($runtime_dir) && !@mkdir($runtime_dir, 0755, true))) {
-                            $upload_error = 'Could not create the image directory.';
-                        } else {
-                            // Random names prevent collisions and stale browser-cache URLs.
-                            $filename = 'navbar-' . bin2hex(random_bytes(12)) . '.' . $extension;
-                            $flash_file = "$persistent_dir/$filename";
-                            $runtime_file = "$runtime_dir/$filename";
-                            if (!@move_uploaded_file($upload['tmp_name'], $flash_file)) {
-                                $upload_error = 'Could not save the image to flash.';
-                            } elseif (!@copy($flash_file, $runtime_file)) {
-                                @unlink($flash_file);
-                                $upload_error = 'The image could not be activated.';
-                            } else {
-                                @chmod($flash_file, 0644);
-                                @chmod($runtime_file, 0644);
-                                $uploaded_header_image = "/plugins/quick.favorites/navbar-images/$filename";
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    // Invalid uploads never cause a partial settings save.
-    if ($upload_error === null) {
     $new_favs = [];
     $categories = $_POST['category'] ?? [];
     $labels = $_POST['label'] ?? [];
@@ -182,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_favs'])) {
         // header_label is the text shown on the navigation bar button itself.
         // It MUST be saved here or it is wiped from appearance.json on every save.
         'header_label' => $_POST['header_label'] ?? 'fa-star',
-        'header_image' => $uploaded_header_image ?? ($_POST['header_image'] ?? '/plugins/quick.favorites/Asuka.png'),
+        'header_image' => $_POST['header_image'] ?? '/plugins/quick.favorites/Asuka.png',
         'icon_size' => $_POST['icon_size'] ?? '42',
         'grid_columns' => $_POST['grid_columns'] ?? '5',
         'menu_width' => $_POST['menu_width'] ?? '480',
@@ -202,10 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_favs'])) {
     file_put_contents("$cfg_dir/appearance.json", json_encode($appearance_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
     echo "<script>$(function() { swal({title:'Saved', text:'Settings updated!', type:'success', confirmButtonText:'Ok'}, function(){ window.location.href = window.location.pathname; }); });</script>";
-    } else {
-        $safe_error = json_encode($upload_error, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-        echo "<script>$(function() { swal({title:'Image upload failed', text:$safe_error, type:'error'}); });</script>";
-    }
 }
 
 // 3. Load Existing Configuration
@@ -431,7 +370,7 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
         </ul>
     </div>
 
-    <form method="POST" action="/Settings/QuickFavorites" enctype="multipart/form-data">
+    <form method="POST" action="/Settings/QuickFavorites">
         <div class="qf-table-scroll">
         <table class="qf-table">
             <thead>
@@ -506,9 +445,6 @@ $saved_notes = file_exists($notes_file) ? file_get_contents($notes_file) : '';
                         <label>Navbar Image (local path):</label>
                         <input type="text" name="header_image" value="<?= htmlspecialchars($style['header_image']) ?>" class="qf-input" style="font-size: 12px;">
                         <div style="font-size: 11px; opacity: 0.75; line-height: 1.4; margin-top: 3px;">Default: /plugins/quick.favorites/Asuka.png. Leave blank to use the Menu Bar Button icon instead. No image swap on hover.</div>
-                        <label for="qf-navbar-upload" style="display:block; margin-top: 10px;">Upload Navbar Image:</label>
-                        <input type="file" id="qf-navbar-upload" name="navbar_upload" accept="image/png,image/jpeg,image/webp" style="width:100%; font-size:11px;">
-                        <div style="font-size: 11px; opacity: 0.75; line-height: 1.4; margin-top: 3px;">PNG/JPG/WebP (maximum 4 MB, 4096 pixels per side). Choose an image and click Save Settings. It becomes the selected image and is restored after reboot. Original resolution and transparency are preserved. PHP server upload limits also apply.</div>
                     </div>
                     <div>
                         <label>Header Title:</label>
