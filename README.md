@@ -38,6 +38,7 @@ During installation and reboot, the plugin automatically restores custom images 
 * **Fully Customizable Look:** Change the width, grid layout, colors, and borders to perfectly match your unRAIDtheme.
 * **Icon Support:** Use standard FontAwesome icons, native Emojis, or paste a URL to a custom image!
 * **User Scripts Integration:** Don't just navigate—execute! You can map buttons to run your favorite User Scripts directly from the menu.
+* **Interactive terminal shortcuts:** Save a terminal command as a favorite; one click copies it to the clipboard and launches Unraid's real Web Terminal.
 
 ![Settings Page](screenshots/settings.png)
 
@@ -52,6 +53,10 @@ When adding a new link in the Quick Favorites settings, you have access to power
 ### 🔗 Standard Navigation
 * **`Save Tab` (Same Window):** Perfect for navigating to internal unRAIDpages (e.g., `/Dashboard` or `/Settings/DockerSettings`). It opens the link in your current tab.
 * **`New Tab` (New Window):** Ideal for external web GUIs (like Sonarr, Plex, or your router's IP). It opens the link in a brand new browser tab.
+
+### 🖥️ Copy Command & Open Terminal
+* **`Copy Command & Open Terminal`:** Set **Path / URL / Command** to one shell command (for example, `icloud-reauth` or `jellyfin-history`). Selecting that favorite copies the command to your clipboard and opens Unraid's real interactive Web Terminal. Paste and press Enter to execute it. This action never runs the command automatically, and does not rely on User Scripts.
+* If browser clipboard access is blocked, QF displays the exact command to copy manually. Commands must be a single line.
 
 ### 📜 User Scripts Magic
 *You must have the "User Scripts" plugin installed to use these features.*
