@@ -102,4 +102,10 @@ function QuickFavoritesButton() {
   return false;
 }
 </script>
-<script src="/plugins/quick.favorites/favs.js"></script>
+<?php
+// A stale favs.js from the browser cache can leave new QF actions inert.
+// Use the actual script content hash to request a fresh copy after updates.
+$qf_js_file = '/usr/local/emhttp/plugins/quick.favorites/favs.js';
+$qf_js_revision = is_file($qf_js_file) ? hash_file('md5', $qf_js_file) : '0';
+?>
+<script src="/plugins/quick.favorites/favs.js?v=<?= htmlspecialchars($qf_js_revision, ENT_QUOTES) ?>"></script>
