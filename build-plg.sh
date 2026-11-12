@@ -58,6 +58,7 @@ fi
 # ---- 2. Rewrite version + MD5 tags ------------------------------------------
 python3 - "$PLG" "$NEXT" <<'PYEOF'
 import hashlib, os, re, sys
+from xml.etree import ElementTree
 
 plg, new_version = sys.argv[1], sys.argv[2]
 text = open(plg, encoding='utf-8').read()
@@ -98,6 +99,12 @@ def handle(block):
     return block.replace('</URL>', '</URL>\n  <MD5>' + digest + '</MD5>')
 
 text = re.sub(r'<FILE\b.*?</FILE>', lambda m: handle(m.group(0)), text, flags=re.S)
+# A single bare '&' in a changelog makes the entire PLG unparseable by
+# Unraid's plugin manager. Validate the finished document BEFORE writing.
+try:
+    ElementTree.fromstring(text)
+except ElementTree.ParseError as exc:
+    sys.exit(f"ERROR: Invalid plugin XML (not written): {exc}")
 open(plg, 'w', encoding='utf-8').write(text)
 
 print("  version -> " + new_version + "\n")
