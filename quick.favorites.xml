@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Containers>
 <Plugin>True</Plugin>
-<PluginURL>https://raw.githubusercontent.com/hernandito/quick.favorites/main/quick.favorites.plg</PluginURL>
-<PluginAuthor>hernandito</PluginAuthor>
+<PluginURL>https://raw.githubusercontent.com/gunner007cd/quick.favorites/main/quick.favorites.plg</PluginURL>
+<PluginAuthor>Christopher Deal</PluginAuthor>
 <Beta>False</Beta>
 <Category>Tools:System</Category>
 <Name>Quick.Favorites</Name>

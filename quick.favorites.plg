@@ -1,8 +1,8 @@
 <?xml version="1.0" standalone="yes"?>
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "quick.favorites">
-<!ENTITY author    "gunner007cd">
-<!ENTITY version   "2026.11.12b">
+<!ENTITY author    "Christopher Deal">
+<!ENTITY version   "2026.11.12c">
 <!ENTITY github    "gunner007cd/quick.favorites">
 <!ENTITY pluginURL "https://raw.githubusercontent.com/&github;/main/&name;.plg">
 <!ENTITY plugdir   "/usr/local/emhttp/plugins/&name;">
@@ -17,13 +17,17 @@
         min="6.12.0">
 
 <CHANGES>
+###2026.11.12c
+- CHANGED: Display the fork maintainer as Christopher Deal in Unraid Plugins.
+- No change to GitHub URLs, favorites, navbar artwork or install behavior.
+
 ###2026.11.12b
 - FIXED: Restore manually stored navbar images from persistent flash storage
   whenever the plugin's live directory is recreated at boot or update.
 - No upload UI, new service, or extra dependency.
 
 ###2026.11.12a
-- FORK: Maintained by gunner007cd; originally developed by hernandito.
+- FORK: Maintained by Christopher Deal (gunner007cd); originally developed by hernandito.
 - FORK: Use gunner007cd/quick.favorites for downloads, updates, and issue reports.
 - FIXED: Honor New Tab for favorite links.
 - ADDED: Configurable navbar portrait with the packaged Asuka.png asset.
